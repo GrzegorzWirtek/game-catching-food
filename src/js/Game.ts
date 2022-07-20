@@ -1,139 +1,128 @@
 import * as PIXI from 'pixi.js';
 
 class Game {
-    app: PIXI.Application;
-    // player: PIXI.Sprite;
-    player: PIXI.extras.AnimatedSprite | null;
-    initialPosition: number;
-    playerPosition: number;
-    counter: number;
-    keys: null | 'ArrowLeft' | 'ArrowRight';
-    playerspeed: number;
-    standing: string[];
-    goRightArr: string[];
-    goLeftArr: string[];
+	playerCellSize: number;
+	animationSpeed: number;
+	movementSpeed: number;
+	playerPosition: number;
+	app: PIXI.Application;
+	player: PIXI.extras.AnimatedSprite | null;
+	keys: null | 'ArrowLeft' | 'ArrowRight';
+	playerSheet:
+		| { right: PIXI.Texture[]; left: PIXI.Texture[]; static: PIXI.Texture[] }
+		| { right: null; left: null; static: null };
 
-    constructor(app: PIXI.Application){
-        this.app = app;
-        // this.player = PIXI.Sprite.from('../images/player.png');
-        this.player = null;
-        this.keys = null;
-        this.initialPosition = 0;
-        this.playerspeed = 5;
-        this.standing = ['../images/player.png'];
-        this.playerPosition = 0;
-        this.counter = 0;
-        this.goRightArr = [
-            '../images/right_0.png',
-            '../images/right_1.png',
-            '../images/right_2.png',
-            '../images/right_3.png',
-            '../images/right_4.png',
-            '../images/right_5.png',
-        ];
-        this.goLeftArr = [
-            '../images/left_0.png',
-            '../images/left_1.png',
-            '../images/left_2.png',
-            '../images/left_3.png',
-            '../images/left_4.png',
-            '../images/left_5.png',
-        ];
-        this.app.loader
-    }
+	constructor(app: PIXI.Application) {
+		this.playerCellSize = 84;
+		this.animationSpeed = 0.23;
+		this.movementSpeed = 1.8;
+		this.playerPosition = 0;
+		this.app = app;
+		this.playerSheet = { right: null, left: null, static: null };
+		this.player = null;
+		this.keys = null;
+	}
 
-    startGame(){
-        document.body.appendChild(app.view);
-        this.loadSheet(this.standing);
-        // this.playerMove();
-        // this.player.anchor.set(0.5);
-        // this.player.x = this.app.view.width / 2;
-        // this.player.y = this.app.view.height - 42;
-        // this.app.stage.addChild(this.player);
+	startGame() {
+		document.body.appendChild(this.app.view);
+		this.app.loader.add('player', '../images/player.png');
+		app.loader.load(() => this.onLoadingDone());
 
-        // this.app.ticker.add(() => this.playerMove());
-        // this.app.loader.add('player', '../images/player_0.png');
+		window.addEventListener('keydown', (e) => this.handleKeyDown(e));
+		window.addEventListener('keyup', (e) => this.handleKeyUp(e));
+	}
 
-        // this.app.loader.add('player', '../images/player.png');
-        // this.app.loader.load(() => this.loadSheet());
+	onLoadingDone() {
+		this.createPlayerSheet();
+		this.createPlayer();
 
+		this.app.ticker.add(() => this.gameLoop());
+	}
 
-        window.addEventListener('keydown', (e) => this.handleKeyDown(e));
-        window.addEventListener('keyup', (e) => this.handleKeyUp(e));
+	createPlayerSheet() {
+		let sheet = PIXI.BaseTexture.from(this.app.loader.resources['player'].url);
+		let w = this.playerCellSize;
+		let h = this.playerCellSize;
 
-        // this.loadSheet()
-    };
+		this.playerSheet.left = [
+			new PIXI.Texture(sheet, new PIXI.Rectangle(4 * w, 2 * h, w, h)),
+			new PIXI.Texture(sheet, new PIXI.Rectangle(5 * w, 2 * h, w, h)),
+			new PIXI.Texture(sheet, new PIXI.Rectangle(6 * w, 2 * h, w, h)),
+		];
 
-    handleKeyDown(e: KeyboardEvent){
-        e.preventDefault();
-        if (e.repeat) return
-        if(e.key === 'ArrowLeft' || e.key === 'ArrowRight'){
-            this.keys = e.key
-            this.playerMove();
-        };
-    };
+		this.playerSheet.right = [
+			new PIXI.Texture(sheet, new PIXI.Rectangle(6 * w, h, w, h)),
+			new PIXI.Texture(sheet, new PIXI.Rectangle(7 * w, h, w, h)),
+			new PIXI.Texture(sheet, new PIXI.Rectangle(0 * w, 2 * h, w, h)),
+		];
 
-    handleKeyUp(e: KeyboardEvent){
-        if(e.key === 'ArrowLeft' || e.key === 'ArrowRight'){
-            this.keys = null;
-            this.loadSheet(this.standing);
-        };
-    };
+		this.playerSheet.static = [
+			new PIXI.Texture(sheet, new PIXI.Rectangle(0 * w, 0, w, h)),
+		];
+	}
 
-    playerMove(){
-        // if(this.keys === 'ArrowLeft' && this.player.x > 0 + this.player.width / 2){
-        //     this.player.x -= this.playerspeed;
-        // }else if(this.keys === 'ArrowRight' && this.player.x < this.app.view.width - this.player.width / 2){
-        //     this.player.x += this.playerspeed;
-        // };
-        // this.app.ticker.add(() => this.playerMove());
+	createPlayer() {
+		if (this.playerSheet.static) {
+			this.player = new PIXI.extras.AnimatedSprite(this.playerSheet.static);
+			this.player.anchor.set(0.5);
+			this.player.animationSpeed = this.animationSpeed;
+			this.player.loop = true;
+			this.player.x = this.app.view.width / 2;
+			this.player.y = this.app.view.height - this.player.height / 2;
+			this.app.stage.addChild(this.player);
+		}
+	}
 
-        if(this.keys === 'ArrowLeft'){
-            this.loadSheet(this.goLeftArr)
-        }else if(this.keys === 'ArrowRight'){
-            this.loadSheet(this.goRightArr);
-        }
-    };
+	gameLoop() {
+		if (this.player) {
+			this.playerPosition = Math.floor(this.player.x);
+		}
+		if (this.playerSheet.right && this.keys === 'ArrowRight') {
+			if (this.player) {
+				if (!this.player.playing) {
+					this.player.textures = this.playerSheet.right;
+					this.player.play();
+				}
+				if (this.playerPosition < this.app.view.width - this.player.width / 2) {
+					this.player.x += this.movementSpeed;
+				}
+			}
+		} else if (this.playerSheet.right && this.keys === 'ArrowLeft') {
+			if (this.player) {
+				if (!this.player.playing) {
+					this.player.textures = this.playerSheet.left;
+					this.player.play();
+				}
+				if (this.playerPosition > 0 + this.player.width / 2) {
+					this.player.x -= this.movementSpeed;
+				}
+			}
+		} else {
+			if (this.playerSheet.static && this.player) {
+				this.player.textures = this.playerSheet.static;
+			}
+		}
+	}
 
-    loadSheet(moveArray: string[]){
-        this.app.loader.reset();
-        this.app.loader
-        .add(moveArray).load(() => this.movePlayer(moveArray));
-    };
+	handleKeyDown(e: KeyboardEvent) {
+		if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+			this.keys = e.key;
+		}
+	}
 
-    movePlayer(moveArray: string[]){
-        this.app.stage.removeChildren();
-        this.player = PIXI.extras.AnimatedSprite.fromFrames(moveArray);
-        this.initialPosition = (this.app.view.width / 2) - (this.player.width / 2);
-        this.player.position.set(this.playerPosition, this.app.view.height - this.player.height);
-        this.player.animationSpeed = 1/8;   
-        this.player.play();
-        this.player.loop = true;
-        this.app.stage.addChild(this.player);
-        this.app.ticker.add(() => this.moving())
-        PIXI.utils.clearTextureCache();
-    };
-
-    moving(){
-        if(this.keys){
-            if(this.player){
-                this.counter += 1;
-                // let currentPosition = (this.app.view.width / 2) - (this.player.width / 2);
-                this.playerPosition = this.initialPosition + this.counter;
-                console.log(this.initialPosition, this.counter)
-                this.player.position.set(this.playerPosition, this.app.view.height - this.player.height);
-            }
-        }
-    }
-
-};
+	handleKeyUp(e: KeyboardEvent) {
+		if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+			this.keys = null;
+		}
+	}
+}
 
 const app = new PIXI.Application({
-    width: 800,
-    height: 600,
-    backgroundColor: 0xaaaaaa
+	width: 800,
+	height: 600,
+	backgroundColor: 0xaaaaaa,
 });
-window.onload = function (){
-    const game = new Game(app);
-    game.startGame();
-}
+window.onload = function () {
+	const game = new Game(app);
+	game.startGame();
+};

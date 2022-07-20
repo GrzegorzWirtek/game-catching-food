@@ -27,7 +27,7 @@ const config = {
 		new CopyPlugin([
 			{ from: 'src/index.html' },
 			{ from: 'src/css/style.css', to: 'css/' },
-			{ from: 'src/images/player_0.png', to: 'images/' },
+			{ from: 'src/images/player.png', to: 'images/' },
 		]),
 	],
 	devServer: {
