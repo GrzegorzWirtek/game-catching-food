@@ -28,7 +28,6 @@ const config = {
 			{ from: 'src/index.html' },
 			{ from: 'src/css/style.css', to: 'css/' },
 			{ from: 'src/images/player.png', to: 'images/' },
-			{ from: 'src/images/fruits.png', to: 'images/' },
 			{ from: 'src/images/fruit0.png', to: 'images/' },
 			{ from: 'src/images/fruit1.png', to: 'images/' },
 			{ from: 'src/images/fruit2.png', to: 'images/' },

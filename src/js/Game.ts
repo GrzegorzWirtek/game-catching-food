@@ -4,39 +4,31 @@ import { Fruit } from './Fruit';
 import { Text } from './Text';
 
 class Game {
-	points: number;
-	lives: number;
-	minFruitDelay: number;
-	maxFruitDelay: number;
-	counter: number;
+	#points: number;
+	#lives: number;
+	#minFruitDelay: number;
+	#maxFruitDelay: number;
 
 	app: PIXI.Application;
 	player: Player;
-	fruitsArr: Fruit[];
-	text: Text;
+	#fruitsArr: Fruit[];
+	#text: Text;
 
-	newFruitSetTimeout: NodeJS.Timeout | null;
+	#newFruitSetTimeout: NodeJS.Timeout | null;
 	checkPositionInterval: NodeJS.Timeout | null;
 
-	previousFruitPositionX: number;
-	newFruitPositionX: number;
-
 	constructor(app: PIXI.Application) {
-		this.points = 0;
-		this.lives = 1;
-		this.minFruitDelay = 2900;
-		this.maxFruitDelay = 4000;
-		this.counter = 0;
+		this.#points = 0;
+		this.#lives = 10;
+		this.#minFruitDelay = 2900;
+		this.#maxFruitDelay = 4000;
 
 		this.app = app;
 		this.player = new Player(this.app);
-		this.text = new Text(this.app, this.points, this.lives);
-		this.fruitsArr = [];
+		this.#text = new Text(this.app, this.#points, this.#lives);
+		this.#fruitsArr = [];
 
-		this.previousFruitPositionX = 40;
-		this.newFruitPositionX = 0;
-
-		this.newFruitSetTimeout = null;
+		this.#newFruitSetTimeout = null;
 		this.checkPositionInterval = null;
 	}
 
@@ -48,7 +40,7 @@ class Game {
 		this.app.renderer.view.style.transform = 'translate(-50%, -50%)';
 
 		this.player.startPlayer();
-		this.text.generateText();
+		this.#text.generateText();
 
 		this.startGame();
 	}
@@ -59,7 +51,7 @@ class Game {
 	}
 
 	generateFuit(prevXPosition: number, delay: number) {
-		this.newFruitSetTimeout = setTimeout(() => {
+		this.#newFruitSetTimeout = setTimeout(() => {
 			this.createFruit(prevXPosition);
 		}, delay);
 	}
@@ -67,18 +59,18 @@ class Game {
 	createFruit(prevXPosition: number) {
 		const fruit = new Fruit(this.app, prevXPosition);
 		fruit.startFruits();
-		this.fruitsArr.push(fruit);
+		this.#fruitsArr.push(fruit);
 		this.generateNewFruitDelay(prevXPosition);
 	}
 
 	generateNewFruitDelay(prevXPosition: number) {
 		const newXPosition =
-			Math.floor(Math.random() * (this.app.view.width - 55) + 55) - 35;
+			Math.floor(Math.random() * (this.app.view.width - 70) + 70) - 40;
 		const gap = Math.abs(prevXPosition - newXPosition);
 		const param = ((100 / this.app.view.width) * gap) / 100;
-		const minDelay = this.minFruitDelay * param;
+		const minDelay = this.#minFruitDelay * param;
 		const delay = Math.floor(
-			Math.random() * (this.maxFruitDelay - minDelay) + minDelay,
+			Math.random() * (this.#maxFruitDelay - minDelay) + minDelay,
 		);
 
 		this.generateFuit(newXPosition, delay);
@@ -87,8 +79,8 @@ class Game {
 	checkPosition() {
 		this.checkPositionInterval = setInterval(() => {
 			console.log('check point inter');
-			if (this.fruitsArr.length) {
-				this.fruitsArr.forEach((fruitItem, index) => {
+			if (this.#fruitsArr.length) {
+				this.#fruitsArr.forEach((fruitItem, index) => {
 					if (fruitItem.fruitPositionY > this.app.view.height - 10) {
 						this.deleteFruit(fruitItem, index);
 						this.removeLive();
@@ -108,41 +100,41 @@ class Game {
 
 	deleteFruit(fruitItem: Fruit, index: number) {
 		fruitItem.removeFruit();
-		delete this.fruitsArr[index];
-		this.fruitsArr.splice(index, 1);
+		delete this.#fruitsArr[index];
+		this.#fruitsArr.splice(index, 1);
 	}
 
 	addPoint() {
-		this.points++;
-		this.text.uploadText('point', this.points);
+		this.#points++;
+		this.#text.uploadText('point', this.#points);
 	}
 
 	removeLive() {
-		this.lives--;
+		this.#lives--;
 		this.checkIsGameOver();
-		this.text.uploadText('live', this.lives);
+		this.#text.uploadText('live', this.#lives);
 	}
 
 	checkIsGameOver() {
-		if (this.lives < 1) {
+		if (this.#lives < 1) {
 			this.stopGame();
 		}
 	}
 
 	stopGame() {
-		this.fruitsArr.forEach((fruitItem, index) =>
+		this.#fruitsArr.forEach((fruitItem, index) =>
 			this.deleteFruit(fruitItem, index),
 		);
 		if (this.checkPositionInterval) {
 			clearInterval(this.checkPositionInterval);
 		}
-		if (this.newFruitSetTimeout) {
-			clearInterval(this.newFruitSetTimeout);
+		if (this.#newFruitSetTimeout) {
+			clearTimeout(this.#newFruitSetTimeout);
 		}
-		this.fruitsArr.forEach((fruitItem, index) =>
+		this.#fruitsArr.forEach((fruitItem, index) =>
 			this.deleteFruit(fruitItem, index),
 		);
-		this.fruitsArr = [];
+		this.#fruitsArr = [];
 	}
 }
 
