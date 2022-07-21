@@ -6,7 +6,9 @@ import { Text } from './Text';
 class Game {
 	points: number;
 	lives: number;
-	delayFruitGenerate: number;
+	minFruitDelay: number;
+	maxFruitDelay: number;
+	counter: number;
 
 	app: PIXI.Application;
 	player: Player;
@@ -21,8 +23,10 @@ class Game {
 
 	constructor(app: PIXI.Application) {
 		this.points = 0;
-		this.lives = 3;
-		this.delayFruitGenerate = 2300;
+		this.lives = 1;
+		this.minFruitDelay = 2900;
+		this.maxFruitDelay = 4000;
+		this.counter = 0;
 
 		this.app = app;
 		this.player = new Player(this.app);
@@ -51,47 +55,33 @@ class Game {
 
 	startGame() {
 		this.checkPosition();
-		this.generateFuit();
+		this.generateFuit(200, 500);
 	}
 
-	generateFuit() {
+	generateFuit(prevXPosition: number, delay: number) {
 		this.newFruitSetTimeout = setTimeout(() => {
-			this.createFruit();
-		}, this.delayFruitGenerate);
+			this.createFruit(prevXPosition);
+		}, delay);
 	}
 
-	createFruit() {
-		this.newFruitPositionX = this.setNewFruitPositionX();
-		const fruit = new Fruit(this.app, this.newFruitPositionX);
+	createFruit(prevXPosition: number) {
+		const fruit = new Fruit(this.app, prevXPosition);
 		fruit.startFruits();
 		this.fruitsArr.push(fruit);
-		this.generateNewFruitDelay();
+		this.generateNewFruitDelay(prevXPosition);
 	}
 
-	setNewFruitPositionX() {
-		const newFruitPositionX =
+	generateNewFruitDelay(prevXPosition: number) {
+		const newXPosition =
 			Math.floor(Math.random() * (this.app.view.width - 55) + 55) - 35;
+		const gap = Math.abs(prevXPosition - newXPosition);
+		const param = ((100 / this.app.view.width) * gap) / 100;
+		const minDelay = this.minFruitDelay * param;
+		const delay = Math.floor(
+			Math.random() * (this.maxFruitDelay - minDelay) + minDelay,
+		);
 
-		return newFruitPositionX;
-	}
-
-	generateNewFruitDelay() {
-		let previousFruitPositionX = this.newFruitPositionX;
-
-		console.log('prev', previousFruitPositionX);
-		console.log('new', this.newFruitPositionX);
-
-		this.generateFuit();
-
-		// const delayParam =
-		// 	((100 / this.app.view.width) *
-		// 		Math.abs(previousFruitPositionX - newFruitPositionX)) /
-		// 	100;
-		// const minDelay = 2400 * delayParam;
-		// const maxDelay = 4000;
-		// this.delayFruitGenerate = Math.floor(
-		// 	Math.random() * (maxDelay - minDelay + minDelay),
-		// );
+		this.generateFuit(newXPosition, delay);
 	}
 
 	checkPosition() {
