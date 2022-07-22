@@ -2,14 +2,16 @@ import * as PIXI from 'pixi.js';
 import { Player } from './Player';
 import { Fruit } from './Fruit';
 import { Text } from './Text';
+import { Popup } from './Popup';
 
 class Game {
 	#points: number;
 	#lives: number;
 	#minFruitDelay: number;
-	#maxFruitDelay: number;
+	#fruitDelayVariable: number;
 
 	app: PIXI.Application;
+	popup: Popup;
 	player: Player;
 	#fruitsArr: Fruit[];
 	#text: Text;
@@ -20,10 +22,13 @@ class Game {
 	constructor(app: PIXI.Application) {
 		this.#points = 0;
 		this.#lives = 10;
+		//minimal delay to allow the board to move from left to right
 		this.#minFruitDelay = 2900;
-		this.#maxFruitDelay = 4000;
+		//variable to randomize the delay of generating a new fruit, from min to max
+		this.#fruitDelayVariable = 1600;
 
 		this.app = app;
+		this.popup = new Popup();
 		this.player = new Player(this.app);
 		this.#text = new Text(this.app, this.#points, this.#lives);
 		this.#fruitsArr = [];
@@ -39,15 +44,16 @@ class Game {
 		this.app.renderer.view.style.top = '50%';
 		this.app.renderer.view.style.transform = 'translate(-50%, -50%)';
 
+		this.popup.initPopup();
+		this.popup.handlePopup(this.startGame.bind(this));
+
 		this.player.startPlayer();
 		this.#text.generateText();
-
-		this.startGame();
 	}
 
 	startGame() {
 		this.checkPosition();
-		this.generateFuit(200, 500);
+		this.generateFuit(200, 1000);
 	}
 
 	generateFuit(prevXPosition: number, delay: number) {
@@ -60,30 +66,44 @@ class Game {
 		const fruit = new Fruit(this.app, prevXPosition);
 		fruit.startFruits();
 		this.#fruitsArr.push(fruit);
-		this.generateNewFruitDelay(prevXPosition);
+		this.generateFruitDelay(prevXPosition);
 	}
 
-	generateNewFruitDelay(prevXPosition: number) {
+	//generate random delay, based on the drawn position x new fruit
+	generateFruitDelay(prevXPosition: number) {
+		//draw item x of the next fruit
 		const newXPosition =
 			Math.floor(Math.random() * (this.app.view.width - 70) + 70) - 40;
+		//determining the distance x of the new fruit from the previous one
 		const gap = Math.abs(prevXPosition - newXPosition);
+		//creation of a parameter for delay
 		const param = ((100 / this.app.view.width) * gap) / 100;
+		//minimal delay, allowing the player to get from the previous position to the position of the new fruit
 		const minDelay = this.#minFruitDelay * param;
-		const delay = Math.floor(
-			Math.random() * (this.#maxFruitDelay - minDelay) + minDelay,
-		);
+		//maximum delay (decreases by 10 with each function call)
+		const maxDelay = minDelay + this.#fruitDelayVariable;
+		//delay draw in the min-max range
+		const delay = Math.floor(Math.random() * (maxDelay - minDelay) + minDelay);
 
+		//passing the position of the new fruit and delay to the function that creates the new fruit
 		this.generateFuit(newXPosition, delay);
+
+		//reducing the variable affecting maxDelay
+		if (this.#fruitDelayVariable > 0) {
+			this.#fruitDelayVariable -= 10;
+		}
 	}
 
+	//checking the position of the fruit and the player
 	checkPosition() {
 		this.checkPositionInterval = setInterval(() => {
-			console.log('check point inter');
 			if (this.#fruitsArr.length) {
 				this.#fruitsArr.forEach((fruitItem, index) => {
+					//if the fruit misses the player, subtract a life
 					if (fruitItem.fruitPositionY > this.app.view.height - 10) {
 						this.deleteFruit(fruitItem, index);
 						this.removeLive();
+						//if the fruit is caught, add a point
 					} else if (
 						fruitItem.fruitPositionY >=
 							this.app.view.height - this.player.playerCellSize &&
@@ -115,6 +135,7 @@ class Game {
 		this.#text.uploadText('live', this.#lives);
 	}
 
+	//shecking if there are any lives left, called each time a life is subtracted
 	checkIsGameOver() {
 		if (this.#lives < 1) {
 			this.stopGame();
@@ -135,6 +156,16 @@ class Game {
 			this.deleteFruit(fruitItem, index),
 		);
 		this.#fruitsArr = [];
+
+		this.popup.showPopup(this.#points);
+
+		this.#points = 0;
+		this.#lives = 10;
+		this.#minFruitDelay = 2900;
+		this.#fruitDelayVariable = 1600;
+
+		this.#text.uploadText('point', this.#points);
+		this.#text.uploadText('lives', this.#lives);
 	}
 }
 

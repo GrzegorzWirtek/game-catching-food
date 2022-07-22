@@ -20,7 +20,7 @@ export class Text {
 			fontFamily: 'Arial',
 			fontSize: 30,
 		});
-		this.pointText = new PIXI.Text(`Points: ${this.points}`, textStyle);
+		this.pointText = new PIXI.Text(`Scores: ${this.points}`, textStyle);
 		this.pointText.x = 20;
 		this.pointText.y = 20;
 		this.livesText = new PIXI.Text(`Lives: ${this.lives}`, textStyle);
@@ -32,7 +32,7 @@ export class Text {
 
 	uploadText(witchValue: string, value: number) {
 		if (this.pointText && witchValue === 'point') {
-			this.pointText.text = `Points: ${value}`;
+			this.pointText.text = `Scores: ${value}`;
 		}
 		if (this.livesText && witchValue === 'live') {
 			this.livesText.text = `Lives: ${value}`;
