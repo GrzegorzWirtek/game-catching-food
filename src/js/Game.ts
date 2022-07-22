@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
+import { Text } from './Text';
 import { Player } from './Player';
 import { Fruit } from './Fruit';
-import { Text } from './Text';
 import { Popup } from './Popup';
 
 class Game {
@@ -9,6 +9,7 @@ class Game {
 	#lives: number;
 	#minFruitDelay: number;
 	#fruitDelayVariable: number;
+	#gameActive: boolean;
 
 	app: PIXI.Application;
 	popup: Popup;
@@ -21,11 +22,12 @@ class Game {
 
 	constructor(app: PIXI.Application) {
 		this.#points = 0;
-		this.#lives = 10;
+		this.#lives = 1;
 		//minimal delay to allow the board to move from left to right
 		this.#minFruitDelay = 2900;
 		//variable to randomize the delay of generating a new fruit, from min to max
 		this.#fruitDelayVariable = 1600;
+		this.#gameActive = false;
 
 		this.app = app;
 		this.popup = new Popup();
@@ -35,6 +37,15 @@ class Game {
 
 		this.#newFruitSetTimeout = null;
 		this.checkPositionInterval = null;
+
+		document.addEventListener('keydown', (e) => this.handleEnter(e));
+	}
+
+	handleEnter(e: KeyboardEvent) {
+		if (e.key === 'Enter' && !this.#gameActive) {
+			this.startGame();
+			this.popup.hidePopup();
+		}
 	}
 
 	initGame() {
@@ -44,14 +55,18 @@ class Game {
 		this.app.renderer.view.style.top = '50%';
 		this.app.renderer.view.style.transform = 'translate(-50%, -50%)';
 
+		const img = PIXI.Sprite.from('../images/bcg.png');
+		app.stage.addChild(img);
+		this.#text.generateText();
+
 		this.popup.initPopup();
 		this.popup.handlePopup(this.startGame.bind(this));
 
 		this.player.startPlayer();
-		this.#text.generateText();
 	}
 
 	startGame() {
+		this.#gameActive = true;
 		this.checkPosition();
 		this.generateFuit(200, 1000);
 	}
@@ -106,7 +121,7 @@ class Game {
 						//if the fruit is caught, add a point
 					} else if (
 						fruitItem.fruitPositionY >=
-							this.app.view.height - this.player.playerCellSize &&
+							this.app.view.height - this.player.playerCellSize - 15 &&
 						fruitItem.fruitPositionX + 20 >= this.player.playerPosition &&
 						fruitItem.fruitPositionX <= this.player.playerPosition + 20
 					) {
@@ -143,6 +158,7 @@ class Game {
 	}
 
 	stopGame() {
+		this.#gameActive = false;
 		this.#fruitsArr.forEach((fruitItem, index) =>
 			this.deleteFruit(fruitItem, index),
 		);
@@ -160,7 +176,7 @@ class Game {
 		this.popup.showPopup(this.#points);
 
 		this.#points = 0;
-		this.#lives = 10;
+		this.#lives = 1;
 		this.#minFruitDelay = 2900;
 		this.#fruitDelayVariable = 1600;
 

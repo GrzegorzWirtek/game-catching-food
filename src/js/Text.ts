@@ -16,10 +16,12 @@ export class Text {
 	}
 
 	generateText() {
-		const textStyle = new PIXI.TextStyle({
-			fontFamily: 'Arial',
-			fontSize: 30,
-		});
+		const style = {
+			fontSize: 28,
+			fill: '#ffffff',
+			fontFamily: "'Russo One', sans-serif",
+		};
+		const textStyle = new PIXI.TextStyle(style);
 		this.pointText = new PIXI.Text(`Scores: ${this.points}`, textStyle);
 		this.pointText.x = 20;
 		this.pointText.y = 20;
