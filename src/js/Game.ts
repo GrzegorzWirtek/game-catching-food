@@ -11,6 +11,9 @@ class Game {
 	#fruitDelayVariable: number;
 	#gameActive: boolean;
 
+	infoDiv: HTMLDivElement;
+	firstLaunch: boolean;
+
 	app: PIXI.Application;
 	popup: Popup;
 	player: Player;
@@ -22,12 +25,15 @@ class Game {
 
 	constructor(app: PIXI.Application) {
 		this.#points = 0;
-		this.#lives = 1;
+		this.#lives = 10;
 		//minimal delay to allow the board to move from left to right
 		this.#minFruitDelay = 2900;
 		//variable to randomize the delay of generating a new fruit, from min to max
 		this.#fruitDelayVariable = 1600;
 		this.#gameActive = false;
+
+		this.infoDiv = document.querySelector('.info')! as HTMLDivElement;
+		this.firstLaunch = true;
 
 		this.app = app;
 		this.popup = new Popup();
@@ -66,9 +72,25 @@ class Game {
 	}
 
 	startGame() {
+		this.#points = 0;
+		this.#text.uploadText('point', this.#points);
+
+		let firstDelay = 500;
+		//displaying navigation information only the first time
+		if (this.firstLaunch) {
+			this.infoDiv.classList.add('info--visible');
+			firstDelay = 3000;
+			this.firstLaunch = false;
+
+			//remove visibility after animation is done
+			setTimeout(() => {
+				this.infoDiv.classList.remove('info--visible');
+			}, 3000);
+		}
+
 		this.#gameActive = true;
 		this.checkPosition();
-		this.generateFuit(200, 1000);
+		this.generateFuit(200, firstDelay);
 	}
 
 	generateFuit(prevXPosition: number, delay: number) {
@@ -122,7 +144,7 @@ class Game {
 					} else if (
 						fruitItem.fruitPositionY >=
 							this.app.view.height - this.player.playerCellSize - 15 &&
-						fruitItem.fruitPositionX + 20 >= this.player.playerPosition &&
+						fruitItem.fruitPositionX + 35 >= this.player.playerPosition &&
 						fruitItem.fruitPositionX <= this.player.playerPosition + 20
 					) {
 						this.deleteFruit(fruitItem, index);
@@ -134,9 +156,11 @@ class Game {
 	}
 
 	deleteFruit(fruitItem: Fruit, index: number) {
-		fruitItem.removeFruit();
-		delete this.#fruitsArr[index];
-		this.#fruitsArr.splice(index, 1);
+		setTimeout(() => {
+			fruitItem.removeFruit();
+			delete this.#fruitsArr[index];
+			this.#fruitsArr.splice(index, 1);
+		}, 1);
 	}
 
 	addPoint() {
@@ -162,26 +186,21 @@ class Game {
 		this.#fruitsArr.forEach((fruitItem, index) =>
 			this.deleteFruit(fruitItem, index),
 		);
+		this.#fruitsArr = [];
 		if (this.checkPositionInterval) {
 			clearInterval(this.checkPositionInterval);
 		}
 		if (this.#newFruitSetTimeout) {
 			clearTimeout(this.#newFruitSetTimeout);
 		}
-		this.#fruitsArr.forEach((fruitItem, index) =>
-			this.deleteFruit(fruitItem, index),
-		);
-		this.#fruitsArr = [];
 
 		this.popup.showPopup(this.#points);
 
-		this.#points = 0;
-		this.#lives = 1;
+		this.#lives = 10;
+		this.#text.uploadText('lives', this.#lives);
+
 		this.#minFruitDelay = 2900;
 		this.#fruitDelayVariable = 1600;
-
-		this.#text.uploadText('point', this.#points);
-		this.#text.uploadText('lives', this.#lives);
 	}
 }
 

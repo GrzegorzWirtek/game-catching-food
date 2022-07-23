@@ -30,9 +30,12 @@ export class Text {
 		this.livesText.y = 20;
 		this.app.stage.addChild(this.pointText);
 		this.app.stage.addChild(this.livesText);
+		this.app.stage.setChildIndex(this.pointText, 2);
+		this.app.stage.setChildIndex(this.livesText, 2);
 	}
 
 	uploadText(witchValue: string, value: number) {
+		console.log(witchValue, value);
 		if (this.pointText && witchValue === 'point') {
 			this.pointText.text = `Scores: ${value}`;
 		}

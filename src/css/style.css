@@ -17,7 +17,9 @@ button {
 }
 
 body {
-	background-color: #3E688A;
+	height: 100vh;
+	background: rgb(89, 117, 139);
+	background: linear-gradient(180deg, rgba(89, 117, 139, 1) 0%, rgba(43, 62, 78, 1) 100%);
 }
 
 .game {
@@ -41,7 +43,7 @@ body {
 }
 
 .popup {
-	background-color: #569DD6;
+	background-color: #689fcb;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -69,14 +71,35 @@ body {
 	font-size: 20px;
 	outline: none;
 	border: none;
-	background-color: #622221;
+	background-color: #865a17;
 	color: white;
 	cursor: pointer;
 	transition: background-color 0.15s;
 }
 
 .button:hover {
-	background-color: #852d2b;
+	background-color: #65420d;
+}
+
+.info {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 300px;
+	padding-top: 30px;
+	text-align: center;
+	background-color: rgba(0, 0, 0, 0.439);
+	border-radius: 5px;
+	color: white;
+	z-index: 2;
+	opacity: 0;
+	visibility: hidden;
+}
+
+.info--visible {
+	visibility: visible;
+	animation: info-visible 2.8s 0.7s forwards;
 }
 
 @keyframes popup-hidden {
@@ -103,5 +126,23 @@ body {
 	100% {
 		opacity: 1;
 
+	}
+}
+
+@keyframes info-visible {
+	0% {
+		opacity: 0;
+	}
+
+	30% {
+		opacity: 1;
+	}
+
+	70% {
+		opacity: 1;
+	}
+
+	99% {
+		opacity: 0;
 	}
 }

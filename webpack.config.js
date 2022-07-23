@@ -28,6 +28,7 @@ const config = {
 			{ from: 'src/index.html' },
 			{ from: 'src/css/style.css', to: 'css/' },
 			{ from: 'src/images/bcg.png', to: 'images/' },
+			{ from: 'src/images/keyboard.png', to: 'images/' },
 			{ from: 'src/images/player.png', to: 'images/' },
 			{ from: 'src/images/fruit0.png', to: 'images/' },
 			{ from: 'src/images/fruit1.png', to: 'images/' },

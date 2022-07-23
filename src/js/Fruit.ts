@@ -30,6 +30,7 @@ export class Fruit {
 		this.fruit.y = this.app.view.height / this.app.view.height;
 
 		this.app.stage.addChild(this.fruit);
+		this.app.stage.setChildIndex(this.fruit, 1);
 
 		this.app.ticker.add(() => this.fruitMove());
 	}
