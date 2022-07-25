@@ -11,8 +11,8 @@ class Game {
 	#fruitDelayVariable: number;
 	#gameActive: boolean;
 
-	infoDiv: HTMLDivElement;
-	firstLaunch: boolean;
+	#infoDiv: HTMLDivElement;
+	#firstLaunch: boolean;
 
 	app: PIXI.Application;
 	popup: Popup;
@@ -21,7 +21,7 @@ class Game {
 	#text: Text;
 
 	#newFruitSetTimeout: NodeJS.Timeout | null;
-	checkPositionInterval: NodeJS.Timeout | null;
+	#checkPositionInterval: NodeJS.Timeout | null;
 
 	constructor(app: PIXI.Application) {
 		this.#points = 0;
@@ -32,8 +32,8 @@ class Game {
 		this.#fruitDelayVariable = 1600;
 		this.#gameActive = false;
 
-		this.infoDiv = document.querySelector('.info')! as HTMLDivElement;
-		this.firstLaunch = true;
+		this.#infoDiv = document.querySelector('.info')! as HTMLDivElement;
+		this.#firstLaunch = true;
 
 		this.app = app;
 		this.popup = new Popup();
@@ -42,7 +42,7 @@ class Game {
 		this.#fruitsArr = [];
 
 		this.#newFruitSetTimeout = null;
-		this.checkPositionInterval = null;
+		this.#checkPositionInterval = null;
 
 		document.addEventListener('keydown', (e) => this.handleEnter(e));
 	}
@@ -74,17 +74,19 @@ class Game {
 	startGame() {
 		this.#points = 0;
 		this.#text.uploadText('point', this.#points);
+		this.#lives = 10;
+		this.#text.uploadText('live', this.#lives);
 
 		let firstDelay = 500;
 		//displaying navigation information only the first time
-		if (this.firstLaunch) {
-			this.infoDiv.classList.add('info--visible');
+		if (this.#firstLaunch) {
+			this.#infoDiv.classList.add('info--visible');
 			firstDelay = 3000;
-			this.firstLaunch = false;
+			this.#firstLaunch = false;
 
 			//remove visibility after animation is done
 			setTimeout(() => {
-				this.infoDiv.classList.remove('info--visible');
+				this.#infoDiv.classList.remove('info--visible');
 			}, 3000);
 		}
 
@@ -133,7 +135,7 @@ class Game {
 
 	//checking the position of the fruit and the player
 	checkPosition() {
-		this.checkPositionInterval = setInterval(() => {
+		this.#checkPositionInterval = setInterval(() => {
 			if (this.#fruitsArr.length) {
 				this.#fruitsArr.forEach((fruitItem, index) => {
 					//if the fruit misses the player, subtract a life
@@ -170,8 +172,8 @@ class Game {
 
 	removeLive() {
 		this.#lives--;
-		this.checkIsGameOver();
 		this.#text.uploadText('live', this.#lives);
+		this.checkIsGameOver();
 	}
 
 	//shecking if there are any lives left, called each time a life is subtracted
@@ -187,17 +189,14 @@ class Game {
 			this.deleteFruit(fruitItem, index),
 		);
 		this.#fruitsArr = [];
-		if (this.checkPositionInterval) {
-			clearInterval(this.checkPositionInterval);
+		if (this.#checkPositionInterval) {
+			clearInterval(this.#checkPositionInterval);
 		}
 		if (this.#newFruitSetTimeout) {
 			clearTimeout(this.#newFruitSetTimeout);
 		}
 
 		this.popup.showPopup(this.#points);
-
-		this.#lives = 10;
-		this.#text.uploadText('lives', this.#lives);
 
 		this.#minFruitDelay = 2900;
 		this.#fruitDelayVariable = 1600;
