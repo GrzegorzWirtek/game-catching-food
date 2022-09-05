@@ -35,7 +35,6 @@ export class Text {
 	}
 
 	uploadText(witchValue: string, value: number) {
-		console.log(witchValue, value);
 		if (this.#pointText && witchValue === 'point') {
 			this.#pointText.text = `Scores: ${value}`;
 		}

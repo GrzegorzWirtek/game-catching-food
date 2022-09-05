@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+h1,
+p,
+span,
+button {
+	font-size: 25px;
+	line-height: 1.1;
+	font-family: 'Russo One', sans-serif;
+	letter-spacing: 1px;
+}
+
+body {
+	height: 100vh;
+	background: rgb(89, 117, 139);
+	background: linear-gradient(180deg, rgba(89, 117, 139, 1) 0%, rgba(43, 62, 78, 1) 100%);
+}
+
+.game {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1;
+}
+
+.game--hidden {
+	animation: popup-hidden 0.7s forwards;
+}
+
+.game--visible {
+	animation: popup-visible 0.7s forwards;
+}
+
+.popup {
+	background-color: #689fcb;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 400px;
+	height: 600px;
+}
+
+.title {
+	font-size: 34px;
+	margin-bottom: 15px;
+}
+
+.scores {
+	font-size: 26px;
+	margin-bottom: 15px;
+}
+
+.scores--hidden {
+	visibility: hidden;
+}
+
+.button {
+	padding: 12px 40px;
+	font-size: 20px;
+	outline: none;
+	border: none;
+	background-color: #865a17;
+	color: white;
+	cursor: pointer;
+	transition: background-color 0.15s;
+}
+
+.button:hover {
+	background-color: #65420d;
+}
+
+.info {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 300px;
+	padding-top: 30px;
+	text-align: center;
+	background-color: rgba(0, 0, 0, 0.439);
+	border-radius: 5px;
+	color: white;
+	z-index: 2;
+	opacity: 0;
+	visibility: hidden;
+}
+
+.info--visible {
+	visibility: visible;
+	animation: info-visible 2.8s 0.7s forwards;
+}
+
+@keyframes popup-hidden {
+	0% {
+		opacity: 1;
+	}
+
+	98% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 0;
+		visibility: hidden;
+	}
+}
+
+@keyframes popup-visible {
+	0% {
+		opacity: 0;
+		visibility: visible;
+	}
+
+	100% {
+		opacity: 1;
+
+	}
+}
+
+@keyframes info-visible {
+	0% {
+		opacity: 0;
+	}
+
+	30% {
+		opacity: 1;
+	}
+
+	70% {
+		opacity: 1;
+	}
+
+	99% {
+		opacity: 0;
+	}
+}
