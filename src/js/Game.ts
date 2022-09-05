@@ -61,7 +61,7 @@ class Game {
 		this.app.renderer.view.style.top = '50%';
 		this.app.renderer.view.style.transform = 'translate(-50%, -50%)';
 
-		const img = PIXI.Sprite.from('../images/bcg.png');
+		const img = PIXI.Sprite.from('./images/bcg.png');
 		app.stage.addChild(img);
 		this.#text.generateText();
 
