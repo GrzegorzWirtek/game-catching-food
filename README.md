@@ -6,6 +6,8 @@ An arcade game created using HTML, CSS, TypeScript and Pixi.js library.
 
 The game is about catching falling food. The algorithm randomizes the location and delay of the next food in such a way that the player is always guaranteed to move to the right place in time. As time passes, the scale of difficulty rises - the food appears faster and it becomes more difficult to catch it in time. When ten lives are lost, the game ends and the total points earned are displayed. The game was created in object oriented TypeScritp, using the Pixi.js animation library.
 
+Play game: **[Game](https://grzegorzwirtek.github.io/game-catching-food/)**
+
 ## Technologies
 
 Project is created with:

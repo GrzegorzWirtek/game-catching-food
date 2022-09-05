@@ -30,7 +30,7 @@ export class Player {
 	}
 
 	startPlayer() {
-		this.app.loader.add('player', './images/player.png');
+		this.app.loader.add('player', '../images/player.png');
 		this.app.loader.load(() => this.onLoadingDone());
 
 		window.addEventListener('keydown', (e) => this.handleKeyDown(e));

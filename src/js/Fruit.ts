@@ -24,7 +24,7 @@ export class Fruit {
 
 	startFruits() {
 		this.fruit = PIXI.Sprite.from(
-			`./images/fruit${Math.floor(Math.random() * this.#numberOfFruits)}.png`,
+			`../images/fruit${Math.floor(Math.random() * this.#numberOfFruits)}.png`,
 		);
 
 		this.fruit.x = this.fruitNewPositionX;
